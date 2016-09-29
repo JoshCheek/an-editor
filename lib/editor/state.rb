@@ -44,15 +44,15 @@ class Editor
     end
 
     def cursor_up
-      new y: [y-1, 0].max
+      new y: y-1
     end
 
     def cursor_down
-      new y: [y+1, lines.length-1].min
+      new y: y+1
     end
 
     def cursor_left
-      new x: [0, x-1].max
+      new x: x-1
     end
 
     def cursor_right
