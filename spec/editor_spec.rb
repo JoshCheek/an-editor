@@ -1,9 +1,30 @@
 require 'editor'
 
+module TestHelpers
+  class FakeOutstream
+    def initialize
+      self.printeds = []
+    end
+
+    def has_printed?(str)
+      printeds.any? { |printed| printed.include? str }
+    end
+
+    def print(str)
+      printeds << str
+      nil
+    end
+
+    private
+
+    attr_accessor :printeds
+  end
+end
+
 RSpec.describe 'Editor' do
   def editor
     argv   = []
-    stdout = 'fake stdout'
+    stdout = TestHelpers::FakeOutstream.new
     stdin  = 'fake stdin'
     Editor.new(argv: argv, stdout: stdout, stdin: stdin)
   end
@@ -24,8 +45,15 @@ RSpec.describe 'Editor' do
   end
 
   describe 'run' do
-    it 'sets the editor to running state'
-    it 'turns off dislay of the cursor'
+    it 'sets the editor to running state' do
+      e = editor
+      expect(e).to_not be_running
+      e.run
+      expect(e).to be_running
+    end
+    it 'turns off dislay of the cursor' do
+      expect(editor.run.stdout).to have_printed "\e[?25l"
+    end
   end
 
   describe 'finish' do

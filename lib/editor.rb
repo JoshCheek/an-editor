@@ -1,17 +1,21 @@
 class Editor
-  attr_accessor :argv, :stdin, :stdout
+  HIDE_CURSOR = "\e[?25l"
+
+  attr_accessor :argv, :stdin, :stdout, :running
+
+  alias running? running
 
   def initialize(argv:, stdin:, stdout:)
-    self.argv   = argv
-    self.stdin  = stdin
-    self.stdout = stdout
+    self.argv    = argv
+    self.stdin   = stdin
+    self.stdout  = stdout
+    self.running = false
   end
 
   def run
-  end
-
-  def running?
-    false
+    self.running = true
+    stdout.print HIDE_CURSOR
+    self
   end
 
   def finish
