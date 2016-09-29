@@ -21,5 +21,20 @@ end
 
 module TestHelpers
   class FakeInstream
+    attr_accessor :remaining
+
+    def initialize(to_read)
+      self.remaining = to_read
+    end
+
+    def readpartial(length)
+      read = remaining.shift
+      if !read
+        raise("No more input!")
+      elsif length < read.length
+        raise "Tried to read #{length} chars, but the input had #{read.length} chars"
+      end
+      read
+    end
   end
 end

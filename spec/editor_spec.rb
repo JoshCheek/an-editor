@@ -2,7 +2,8 @@ require 'editor'
 require 'spec_helper'
 
 RSpec.describe 'Editor' do
-  def editor_for(argv:[], stdin: TestHelpers::FakeInstream.new, stdout: TestHelpers::FakeOutstream.new)
+  def editor_for(argv:[], inputs:[], stdout: TestHelpers::FakeOutstream.new)
+    stdin  = TestHelpers::FakeInstream.new(inputs)
     Editor.new(argv: argv, stdout: stdout, stdin: stdin)
   end
 
@@ -19,9 +20,9 @@ RSpec.describe 'Editor' do
       expect(editor).to_not be_running
     end
     it 'knows its argv, stdin, stdout' do
-      editor =  editor_for argv: ['a', 'b'], stdin: 'fake stdin', stdout: 'fake stdout'
+      editor =  editor_for argv: ['a', 'b'], inputs: ['fake stdin'], stdout: 'fake stdout'
       expect(editor.argv).to eq ['a', 'b']
-      expect(editor.stdin).to eq 'fake stdin'
+      expect(editor.stdin.readpartial(1000)).to eq 'fake stdin'
       expect(editor.stdout).to eq 'fake stdout'
     end
   end
@@ -65,8 +66,20 @@ RSpec.describe 'Editor' do
   end
 
   describe 'process' do
-    it 'reads in one chunk of input and processes it'
-    specify 'text gets appended to the buffer'
+    it 'reads in one chunk of input and processes it' do
+      editor = editor_for inputs: ["a", "b"]
+      expect(editor.to_s).to eq "\n"
+      expect(editor.process.stdin.remaining).to eq ["b"]
+      expect(editor.to_s).to eq "a\n"
+    end
+
+    specify 'text gets appended to the buffer' do
+      editor = editor_for inputs: ["a", "b", "c"]
+      expect(editor.process.to_s).to eq "a\n"
+      expect(editor.process.to_s).to eq "ab\n"
+      expect(editor.process.to_s).to eq "abc\n"
+    end
+
     specify 'C-a goes to the beginning of the line'
     specify 'C-e goes to the end of the line'
 
