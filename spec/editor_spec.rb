@@ -1,9 +1,26 @@
 require 'editor'
 
 RSpec.describe 'Editor' do
+  def editor
+    argv   = []
+    stdout = 'fake stdout'
+    stdin  = 'fake stdin'
+    Editor.new(argv: argv, stdout: stdout, stdin: stdin)
+  end
+
   describe 'after initialization' do
-    it 'is not running'
-    it 'knows its argv, stdin, stdout'
+    it 'is not running' do
+      expect(editor).to_not be_running
+    end
+    it 'knows its argv, stdin, stdout' do
+      argv   = ['a', 'b']
+      stdin  = 'fake stdin'
+      stdout = 'fake stdout'
+      editor =  Editor.new(argv: argv, stdout: stdout, stdin: stdin)
+      expect(editor.argv).to eq argv
+      expect(editor.stdin).to eq stdin
+      expect(editor.stdout).to eq stdout
+    end
   end
 
   describe 'run' do
