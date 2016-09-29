@@ -2,6 +2,7 @@
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'editor'
+require 'editor/ansi'
 require 'io/console'
 
 editor = Editor.new(
@@ -10,7 +11,8 @@ editor = Editor.new(
   y:      0,
   argv:   ARGV,
   stdin:  $stdin,
-  stdout: $stdout
+  stdout: $stdout,
+  ansi:   Editor::ANSI.new,
 )
 
 $stdin.raw do

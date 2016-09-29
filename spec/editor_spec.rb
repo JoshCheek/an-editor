@@ -1,10 +1,11 @@
 require 'editor'
+require 'editor/ansi'
 require 'spec_helper'
 
 RSpec.describe 'Editor' do
-  def editor_for(lines:[], x: 0, y: 0, argv:[], inputs:[], stdout: TestHelpers::FakeOutstream.new)
+  def editor_for(lines:[], x: 0, y: 0, argv:[], inputs:[], stdout: TestHelpers::FakeOutstream.new, ansi: Editor::ANSI.new)
     stdin  = TestHelpers::FakeInstream.new(inputs)
-    Editor.new(lines: lines, x: x, y: y, argv: argv, stdout: stdout, stdin: stdin)
+    Editor.new(lines: lines, x: x, y: y, argv: argv, stdout: stdout, stdin: stdin, ansi: ansi)
   end
 
   def new_editor

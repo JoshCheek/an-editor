@@ -1,33 +1,33 @@
 require 'editor/state'
-require 'editor/ansi'
 
 class Editor
-  attr_reader :argv, :stdin, :stdout, :running, :state
+  attr_reader :argv, :stdin, :stdout, :running, :state, :ansi
 
   alias running? running
 
-  def initialize(argv:, stdin:, stdout:, lines:, x:, y:)
+  def initialize(argv:, stdin:, stdout:, lines:, x:, y:, ansi:)
     self.argv    = argv
     self.stdin   = stdin
     self.stdout  = stdout
     self.running = false
     self.state   = State.new(lines: lines, x: x, y: y)
+    self.ansi    = ansi
   end
 
   def run
     self.running = true
-    stdout.print ANSI::HIDE_CURSOR
+    stdout.print ansi.hide_cursor
     self
   end
 
   def finish
     self.running = false
-    stdout.print ANSI::SHOW_CURSOR
+    stdout.print ansi.show_cursor
     self
   end
 
   def process
-    stdout.print ANSI::TOPLEFT, ANSI::CLEAR, state.to_s
+    stdout.print ansi.topleft, ansi.clear, state.to_s
     input = stdin.readpartial 1024
     case input
     when ?\C-d then self.running = false
@@ -44,5 +44,5 @@ class Editor
 
   private
 
-  attr_writer :argv, :stdin, :stdout, :running, :state
+  attr_writer :argv, :stdin, :stdout, :running, :state, :ansi
 end
