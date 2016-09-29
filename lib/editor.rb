@@ -33,7 +33,8 @@ class Editor
     when ?\C-d then self.running = false
     when ?\C-a then self.state = state.to_beginning_of_line
     when ?\C-e then self.state = state.to_end_of_line
-    when ?\C-p, ansi.up_arrow then self.state = state.cursor_up
+    when ?\C-p, ansi.up_arrow   then self.state = state.cursor_up
+    when ?\C-n, ansi.down_arrow then self.state = state.cursor_down
     else self.state = state.insert(input)
     end
     self

@@ -19,5 +19,9 @@ class Editor
     def up_arrow
       "\e[A"
     end
+
+    def down_arrow
+      "\e[B"
+    end
   end
 end

@@ -113,6 +113,8 @@ RSpec.describe 'Editor' do
         .to eq "abcd!\n"
     end
 
+    # TODO: What happens if it moves to a shorter line?
+
     describe 'up arrow / C-p' do
       def test_up(inputs, output, y:)
         editor = editor_for(inputs: inputs, lines: ["abcd", "efgh"], x: 2, y: y)
@@ -135,8 +137,24 @@ RSpec.describe 'Editor' do
     end
 
     describe 'down arrow / C-n' do
-      it 'goes down one line'
-      it 'does not go down from the last line'
+      def test_up(inputs, output, y:)
+        editor = editor_for(inputs: inputs, lines: ["abcd", "efgh"], x: 2, y: y)
+        inputs.each { editor.process }
+        expect(editor.to_s).to eq output
+      end
+
+      it 'goes down one line' do
+        test_up ["!"],         "ab!cd\nefgh\n", y: 0
+        test_up [?\C-n, "!"],  "abcd\nef!gh\n", y: 0
+
+        test_up ["!"],         "ab!cd\nefgh\n", y: 0
+        test_up ["\e[B", "!"], "abcd\nef!gh\n", y: 0
+      end
+
+      it 'does not go down from the last line' do
+        test_up [?\C-n,  "!"], "abcd\nef!gh\n", y: 1
+        test_up ["\e[B", "!"], "abcd\nef!gh\n", y: 1
+      end
     end
 
     describe 'left arrow / C-b' do

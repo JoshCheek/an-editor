@@ -46,5 +46,9 @@ class Editor
     def cursor_up
       new y: [y-1, 0].max
     end
+
+    def cursor_down
+      new y: [y+1, lines.length-1].min
+    end
   end
 end
