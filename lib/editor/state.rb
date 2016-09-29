@@ -42,5 +42,9 @@ class Editor
     def to_end_of_line
       new x: crnt_line.length
     end
+
+    def cursor_up
+      new y: [y-1, 0].max
+    end
   end
 end
