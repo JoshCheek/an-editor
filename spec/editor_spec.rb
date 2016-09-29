@@ -52,17 +52,38 @@ RSpec.describe 'Editor' do
       expect(e).to be_running
     end
     it 'turns off dislay of the cursor' do
-      expect(editor.run.stdout).to have_printed "\e[?25l"
+      e = editor
+      expect(e.stdout).to_not have_printed "\e[?25l"
+      e.run
+      expect(e.stdout).to have_printed "\e[?25l"
     end
   end
 
   describe 'finish' do
-    it 'sets the editor to not running state'
-    it 'turns on dislay of the cursor'
+    it 'sets the editor to not running state' do
+      e = editor.run
+      expect(e).to be_running
+      e.finish
+      expect(e).to_not be_running
+    end
+
+    it 'turns on dislay of the cursor' do
+      e = editor.run
+      expect(e.stdout).to_not have_printed "\e[?25h"
+      e.finish
+      expect(e.stdout).to have_printed "\e[?25h"
+    end
   end
 
   describe 'running?' do
-    it 'reports the running status'
+    it 'reports the running status' do
+      e = editor
+      expect(e).to_not be_running
+      e.run
+      expect(e).to be_running
+      e.finish
+      expect(e).to_not be_running
+    end
   end
 
   describe 'process' do
