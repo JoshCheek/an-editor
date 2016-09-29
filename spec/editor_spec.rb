@@ -1,32 +1,17 @@
 require 'editor'
-
-module TestHelpers
-  class FakeOutstream
-    def initialize
-      self.printeds = []
-    end
-
-    def has_printed?(str)
-      printeds.any? { |printed| printed.include? str }
-    end
-
-    def print(str)
-      printeds << str
-      nil
-    end
-
-    private
-
-    attr_accessor :printeds
-  end
-end
+require 'spec_helper'
 
 RSpec.describe 'Editor' do
-  def editor
-    argv   = []
-    stdout = TestHelpers::FakeOutstream.new
-    stdin  = 'fake stdin'
+  def editor_for(argv:[], stdin: TestHelpers::FakeInstream.new, stdout: TestHelpers::FakeOutstream.new)
     Editor.new(argv: argv, stdout: stdout, stdin: stdin)
+  end
+
+  def new_editor
+    editor_for({})
+  end
+
+  def editor
+    @editor ||= new_editor
   end
 
   describe 'after initialization' do
@@ -34,55 +19,48 @@ RSpec.describe 'Editor' do
       expect(editor).to_not be_running
     end
     it 'knows its argv, stdin, stdout' do
-      argv   = ['a', 'b']
-      stdin  = 'fake stdin'
-      stdout = 'fake stdout'
-      editor =  Editor.new(argv: argv, stdout: stdout, stdin: stdin)
-      expect(editor.argv).to eq argv
-      expect(editor.stdin).to eq stdin
-      expect(editor.stdout).to eq stdout
+      editor =  editor_for argv: ['a', 'b'], stdin: 'fake stdin', stdout: 'fake stdout'
+      expect(editor.argv).to eq ['a', 'b']
+      expect(editor.stdin).to eq 'fake stdin'
+      expect(editor.stdout).to eq 'fake stdout'
     end
   end
 
   describe 'run' do
     it 'sets the editor to running state' do
-      e = editor
-      expect(e).to_not be_running
-      e.run
-      expect(e).to be_running
+      expect(editor).to_not be_running
+      editor.run
+      expect(editor).to be_running
     end
     it 'turns off dislay of the cursor' do
-      e = editor
-      expect(e.stdout).to_not have_printed "\e[?25l"
-      e.run
-      expect(e.stdout).to have_printed "\e[?25l"
+      expect(editor.stdout).to_not have_printed "\e[?25l"
+      editor.run
+      expect(editor.stdout).to have_printed "\e[?25l"
     end
   end
 
   describe 'finish' do
     it 'sets the editor to not running state' do
-      e = editor.run
-      expect(e).to be_running
-      e.finish
-      expect(e).to_not be_running
+      editor.run
+      expect(editor).to be_running
+      editor.finish
+      expect(editor).to_not be_running
     end
 
     it 'turns on dislay of the cursor' do
-      e = editor.run
-      expect(e.stdout).to_not have_printed "\e[?25h"
-      e.finish
-      expect(e.stdout).to have_printed "\e[?25h"
+      expect(editor.stdout).to_not have_printed "\e[?25h"
+      editor.finish
+      expect(editor.stdout).to have_printed "\e[?25h"
     end
   end
 
   describe 'running?' do
     it 'reports the running status' do
-      e = editor
-      expect(e).to_not be_running
-      e.run
-      expect(e).to be_running
-      e.finish
-      expect(e).to_not be_running
+      expect(editor).to_not be_running
+      editor.run
+      expect(editor).to be_running
+      editor.finish
+      expect(editor).to_not be_running
     end
   end
 
