@@ -77,10 +77,11 @@ class Editor
   def process
     stdout.print ANSI_TOPLEFT, ANSI_CLEAR, state.to_s
     input = stdin.readpartial 1024
-    self.state = case input
-    when ?\C-a then state.to_beginning_of_line
-    when ?\C-e then state.to_end_of_line
-    else state.insert input
+    case input
+    when ?\C-d then self.running = false
+    when ?\C-a then self.state = state.to_beginning_of_line
+    when ?\C-e then self.state = state.to_end_of_line
+    else self.state = state.insert(input)
     end
     self
   end

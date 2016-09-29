@@ -88,6 +88,14 @@ RSpec.describe 'Editor' do
       expect(editor.process.to_s).to eq "abc\n"
     end
 
+    specify 'C-d sets it to not running' do
+      editor = editor_for inputs: [?\C-d, "a"]
+      editor.run
+      expect(editor).to be_running
+      expect(editor.process).to_not be_running
+      expect(editor.to_s).to eq "\n"
+    end
+
     specify 'C-a goes to the beginning of the line' do
       expect(editor_for(inputs: ["!"], lines: ["abcd"], x: 2).process.to_s)
         .to eq "ab!cd\n"
