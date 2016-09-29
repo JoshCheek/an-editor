@@ -1,13 +1,14 @@
 class State
-  def new(*args)
-    self.class.new(*args)
+  def new(args)
+    args = {lines: lines, y: y, x: x}.merge(args)
+    self.class.new(args)
   end
 
   attr_accessor :lines, :y, :x
-  def initialize(lines:[])
+  def initialize(lines:, x:, y:)
     self.lines = lines
-    self.y     = 0
-    self.x     = 0
+    self.x     = x
+    self.y     = y
   end
 
   def to_s
@@ -15,19 +16,30 @@ class State
   end
 
   def insert(input)
-    new lines: previous_lines + [current_line << input] + remaining_lines
+    line = self.crnt_line.dup
+    line[x, 0] = input
+    x = self.x + input.length
+    new x: x, lines: prev_line + [line] + rem_lines
   end
 
-  def previous_lines
+  def prev_line
     lines[0...y]
   end
 
-  def current_line
+  def crnt_line
     lines[y] || ""
   end
 
-  def remaining_lines
+  def rem_lines
     lines[y+1..-1] || []
+  end
+
+  def to_beginning_of_line
+    new x: 0
+  end
+
+  def to_end_of_line
+    new x: crnt_line.length
   end
 end
 
@@ -40,12 +52,12 @@ class Editor
 
   alias running? running
 
-  def initialize(argv:, stdin:, stdout:)
+  def initialize(argv:, stdin:, stdout:, lines:, x:, y:)
     self.argv    = argv
     self.stdin   = stdin
     self.stdout  = stdout
     self.running = false
-    self.state   = State.new
+    self.state   = State.new(lines: lines, x: x, y: y)
   end
 
   def run
@@ -62,7 +74,11 @@ class Editor
 
   def process
     input = stdin.readpartial 1024
-    self.state = state.insert input
+    self.state = case input
+    when ?\C-a then state.to_beginning_of_line
+    when ?\C-e then state.to_end_of_line
+    else state.insert input
+    end
     self
   end
 

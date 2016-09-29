@@ -2,9 +2,9 @@ require 'editor'
 require 'spec_helper'
 
 RSpec.describe 'Editor' do
-  def editor_for(argv:[], inputs:[], stdout: TestHelpers::FakeOutstream.new)
+  def editor_for(lines:[], x: 0, y: 0, argv:[], inputs:[], stdout: TestHelpers::FakeOutstream.new)
     stdin  = TestHelpers::FakeInstream.new(inputs)
-    Editor.new(argv: argv, stdout: stdout, stdin: stdin)
+    Editor.new(lines: lines, x: x, y: y, argv: argv, stdout: stdout, stdin: stdin)
   end
 
   def new_editor
@@ -80,8 +80,21 @@ RSpec.describe 'Editor' do
       expect(editor.process.to_s).to eq "abc\n"
     end
 
-    specify 'C-a goes to the beginning of the line'
-    specify 'C-e goes to the end of the line'
+    specify 'C-a goes to the beginning of the line' do
+      expect(editor_for(inputs: ["!"], lines: ["abcd"], x: 2).process.to_s)
+        .to eq "ab!cd\n"
+
+      expect(editor_for(inputs: [?\C-a, "!"], lines: ["abcd"], x: 2).process.process.to_s)
+        .to eq "!abcd\n"
+    end
+
+    specify 'C-e goes to the end of the line' do
+      expect(editor_for(inputs: ["!"], lines: ["abcd"], x: 2).process.to_s)
+        .to eq "ab!cd\n"
+
+      expect(editor_for(inputs: [?\C-e, "!"], lines: ["abcd"], x: 2).process.process.to_s)
+        .to eq "abcd!\n"
+    end
 
     describe 'up arrow / C-p' do
       it 'goes up one line'
