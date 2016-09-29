@@ -8,9 +8,13 @@ module TestHelpers
       printeds.any? { |printed| printed.include? str }
     end
 
-    def print(str)
-      printeds << str
+    def print(*strs)
+      printeds.concat(strs)
       nil
+    end
+
+    def printed
+      printeds.join
     end
 
     private

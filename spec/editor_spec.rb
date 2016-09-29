@@ -66,6 +66,14 @@ RSpec.describe 'Editor' do
   end
 
   describe 'process' do
+    it 'clears the screen and prints the current buffer' do
+      editor = editor_for inputs: ["a", "b", "c"]
+      expect(editor.stdout.printed).to eq ""
+      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\n"
+      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\n" "\e[H\e[2Ja\n"
+      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\n" "\e[H\e[2Ja\n" "\e[H\e[2Jab\n"
+    end
+
     it 'reads in one chunk of input and processes it' do
       editor = editor_for inputs: ["a", "b"]
       expect(editor.to_s).to eq "\n"

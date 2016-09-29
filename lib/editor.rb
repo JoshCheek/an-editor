@@ -45,8 +45,10 @@ end
 
 
 class Editor
-  HIDE_CURSOR = "\e[?25l"
-  SHOW_CURSOR = "\e[?25h"
+  ANSI_HIDE_CURSOR = "\e[?25l"
+  ANSI_SHOW_CURSOR = "\e[?25h"
+  ANSI_TOPLEFT     = "\e[H"
+  ANSI_CLEAR       = "\e[2J"
 
   attr_accessor :argv, :stdin, :stdout, :running, :state
 
@@ -62,17 +64,18 @@ class Editor
 
   def run
     self.running = true
-    stdout.print HIDE_CURSOR
+    stdout.print ANSI_HIDE_CURSOR
     self
   end
 
   def finish
     self.running = false
-    stdout.print SHOW_CURSOR
+    stdout.print ANSI_SHOW_CURSOR
     self
   end
 
   def process
+    stdout.print ANSI_TOPLEFT, ANSI_CLEAR, state.to_s
     input = stdin.readpartial 1024
     self.state = case input
     when ?\C-a then state.to_beginning_of_line
