@@ -30,7 +30,7 @@ class Editor
     stdout.print ansi.topleft, ansi.clear, state.to_s
     input = stdin.readpartial 1024
     case input
-    when ?\C-d
+    when ?\C-d, ansi.escape
       self.running = false
     when ?\C-a
       self.state = state.to_beginning_of_line

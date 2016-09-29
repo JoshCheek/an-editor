@@ -1,5 +1,9 @@
 class Editor
   class ANSI
+    def escape
+      "\e"
+    end
+
     def hide_cursor
       "\e[?25l"
     end

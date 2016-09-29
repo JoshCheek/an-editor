@@ -89,8 +89,14 @@ RSpec.describe 'Editor' do
       expect(editor.process.to_s).to eq "abc\n"
     end
 
-    specify 'C-d sets it to not running' do
+    specify 'C-d and esc set it to not running' do
       editor = editor_for inputs: [?\C-d, "a"]
+      editor.run
+      expect(editor).to be_running
+      expect(editor.process).to_not be_running
+      expect(editor.to_s).to eq "\n"
+
+      editor = editor_for inputs: ["\e", "a"]
       editor.run
       expect(editor).to be_running
       expect(editor.process).to_not be_running
@@ -221,10 +227,6 @@ RSpec.describe 'Editor' do
         test_left [?\C-b,  "!"], "!abcd\n", x: 0
         test_left ["\e[D", "!"], "!abcd\n", x: 0
       end
-    end
-
-    describe 'escape' do
-      it 'quits the program'
     end
 
     describe 'return' do
