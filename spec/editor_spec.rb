@@ -115,15 +115,26 @@ RSpec.describe 'Editor' do
 
     describe 'up arrow / C-p' do
       it 'goes up one line' do
+        # C-p
         expect(editor_for(inputs: ["!"], lines: ["abcd", "efgh"], x: 2, y: 1).process.to_s)
           .to eq "abcd\nef!gh\n"
-
         expect(editor_for(inputs: [?\C-p, "!"], lines: ["abcd", "efgh"], x: 2, y: 1).process.process.to_s)
+          .to eq "ab!cd\nefgh\n"
+
+        # up arrow
+        expect(editor_for(inputs: ["!"], lines: ["abcd", "efgh"], x: 2, y: 1).process.to_s)
+          .to eq "abcd\nef!gh\n"
+        expect(editor_for(inputs: ["\e[A", "!"], lines: ["abcd", "efgh"], x: 2, y: 1).process.process.to_s)
           .to eq "ab!cd\nefgh\n"
       end
 
       it 'does not go up from the first line' do
+        # C-p
         expect(editor_for(inputs: [?\C-p, "!"], lines: ["abcd", "efgh"], x: 2, y: 0).process.process.to_s)
+          .to eq "ab!cd\nefgh\n"
+
+        # up arrow
+        expect(editor_for(inputs: ["\e[A", "!"], lines: ["abcd", "efgh"], x: 2, y: 0).process.process.to_s)
           .to eq "ab!cd\nefgh\n"
       end
     end

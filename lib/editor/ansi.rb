@@ -15,5 +15,9 @@ class Editor
     def clear
       "\e[2J"
     end
+
+    def up_arrow
+      "\e[A"
+    end
   end
 end
