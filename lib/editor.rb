@@ -1,12 +1,8 @@
 require 'editor/state'
+require 'editor/ansi'
 
 class Editor
-  ANSI_HIDE_CURSOR = "\e[?25l"
-  ANSI_SHOW_CURSOR = "\e[?25h"
-  ANSI_TOPLEFT     = "\e[H"
-  ANSI_CLEAR       = "\e[2J"
-
-  attr_accessor :argv, :stdin, :stdout, :running, :state
+  attr_reader :argv, :stdin, :stdout, :running, :state
 
   alias running? running
 
@@ -20,18 +16,18 @@ class Editor
 
   def run
     self.running = true
-    stdout.print ANSI_HIDE_CURSOR
+    stdout.print ANSI::HIDE_CURSOR
     self
   end
 
   def finish
     self.running = false
-    stdout.print ANSI_SHOW_CURSOR
+    stdout.print ANSI::SHOW_CURSOR
     self
   end
 
   def process
-    stdout.print ANSI_TOPLEFT, ANSI_CLEAR, state.to_s
+    stdout.print ANSI::TOPLEFT, ANSI::CLEAR, state.to_s
     input = stdin.readpartial 1024
     case input
     when ?\C-d then self.running = false
@@ -45,4 +41,8 @@ class Editor
   def to_s
     state.to_s
   end
+
+  private
+
+  attr_writer :argv, :stdin, :stdout, :running, :state
 end
