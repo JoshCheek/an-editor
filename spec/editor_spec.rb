@@ -113,7 +113,6 @@ RSpec.describe 'Editor' do
         .to eq "abcd!\n"
     end
 
-    # TODO: What happens if it moves to a shorter line?
 
     describe 'up arrow / C-p' do
       def test_up(inputs, output, y:)
@@ -137,23 +136,31 @@ RSpec.describe 'Editor' do
     end
 
     describe 'down arrow / C-n' do
-      def test_up(inputs, output, y:)
+      def test_down(inputs, output, y:)
         editor = editor_for(inputs: inputs, lines: ["abcd", "efgh"], x: 2, y: y)
         inputs.each { editor.process }
         expect(editor.to_s).to eq output
       end
 
       it 'goes down one line' do
-        test_up ["!"],         "ab!cd\nefgh\n", y: 0
-        test_up [?\C-n, "!"],  "abcd\nef!gh\n", y: 0
+        test_down ["!"],         "ab!cd\nefgh\n", y: 0
+        test_down [?\C-n, "!"],  "abcd\nef!gh\n", y: 0
 
-        test_up ["!"],         "ab!cd\nefgh\n", y: 0
-        test_up ["\e[B", "!"], "abcd\nef!gh\n", y: 0
+        test_down ["!"],         "ab!cd\nefgh\n", y: 0
+        test_down ["\e[B", "!"], "abcd\nef!gh\n", y: 0
       end
 
       it 'does not go down from the last line' do
-        test_up [?\C-n,  "!"], "abcd\nef!gh\n", y: 1
-        test_up ["\e[B", "!"], "abcd\nef!gh\n", y: 1
+        test_down [?\C-n,  "!"], "abcd\nef!gh\n", y: 1
+        test_down ["\e[B", "!"], "abcd\nef!gh\n", y: 1
+      end
+    end
+
+    context 'when it sets the cursor to a column past the end of that line' do
+      it 'moves the cursor past the last character on the line' do
+        expect(Editor::State.new(lines: ["abc"], x: 2).x).to eq 2
+        expect(Editor::State.new(lines: ["abc"], x: 3).x).to eq 3
+        expect(Editor::State.new(lines: ["abc"], x: 4).x).to eq 3
       end
     end
 

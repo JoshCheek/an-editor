@@ -6,10 +6,10 @@ class Editor
     end
 
     attr_accessor :lines, :y, :x
-    def initialize(lines:, x:, y:)
+    def initialize(lines:[], x:0, y:0)
       self.lines = lines
-      self.x     = x
       self.y     = y
+      self.x     = [crnt_line.length, x].min
     end
 
     def to_s
