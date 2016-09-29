@@ -25,10 +25,11 @@ end
 
 module TestHelpers
   class FakeInstream
-    attr_accessor :remaining
+    attr_accessor :remaining, :inputs
 
     def initialize(to_read)
-      self.remaining = to_read
+      self.inputs    = to_read
+      self.remaining = to_read.dup
     end
 
     def readpartial(length)

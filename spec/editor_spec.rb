@@ -114,28 +114,23 @@ RSpec.describe 'Editor' do
     end
 
     describe 'up arrow / C-p' do
-      it 'goes up one line' do
-        # C-p
-        expect(editor_for(inputs: ["!"], lines: ["abcd", "efgh"], x: 2, y: 1).process.to_s)
-          .to eq "abcd\nef!gh\n"
-        expect(editor_for(inputs: [?\C-p, "!"], lines: ["abcd", "efgh"], x: 2, y: 1).process.process.to_s)
-          .to eq "ab!cd\nefgh\n"
+      def test_up(inputs, output, y:)
+        editor = editor_for(inputs: inputs, lines: ["abcd", "efgh"], x: 2, y: y)
+        inputs.each { editor.process }
+        expect(editor.to_s).to eq output
+      end
 
-        # up arrow
-        expect(editor_for(inputs: ["!"], lines: ["abcd", "efgh"], x: 2, y: 1).process.to_s)
-          .to eq "abcd\nef!gh\n"
-        expect(editor_for(inputs: ["\e[A", "!"], lines: ["abcd", "efgh"], x: 2, y: 1).process.process.to_s)
-          .to eq "ab!cd\nefgh\n"
+      it 'goes up one line' do
+        test_up ["!"],         "abcd\nef!gh\n", y: 1
+        test_up [?\C-p, "!"],  "ab!cd\nefgh\n", y: 1
+
+        test_up ["!"],         "abcd\nef!gh\n", y: 1
+        test_up ["\e[A", "!"], "ab!cd\nefgh\n", y: 1
       end
 
       it 'does not go up from the first line' do
-        # C-p
-        expect(editor_for(inputs: [?\C-p, "!"], lines: ["abcd", "efgh"], x: 2, y: 0).process.process.to_s)
-          .to eq "ab!cd\nefgh\n"
-
-        # up arrow
-        expect(editor_for(inputs: ["\e[A", "!"], lines: ["abcd", "efgh"], x: 2, y: 0).process.process.to_s)
-          .to eq "ab!cd\nefgh\n"
+        test_up [?\C-p,  "!"], "ab!cd\nefgh\n", y: 0
+        test_up ["\e[A", "!"], "ab!cd\nefgh\n", y: 0
       end
     end
 
