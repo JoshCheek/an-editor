@@ -164,6 +164,27 @@ RSpec.describe 'Editor' do
       end
     end
 
+    describe 'right arrow / C-f' do
+      def test_right(inputs, output, x:)
+        editor = editor_for(inputs: inputs, lines: ["abcd"], x: x, y: 0)
+        inputs.each { editor.process }
+        expect(editor.to_s).to eq output
+      end
+
+      it 'goes right one character' do
+        test_right ["!"],         "ab!cd\n", x: 2
+        test_right [?\C-f, "!"],  "abc!d\n", x: 2
+
+        test_right ["!"],         "ab!cd\n", x: 2
+        test_right ["\e[C", "!"], "abc!d\n", x: 2
+      end
+
+      it 'does not go right from one-past the last character' do
+        test_right [?\C-f,  "!"], "abcd!\n", x: 4
+        test_right ["\e[C", "!"], "abcd!\n", x: 4
+      end
+    end
+
     describe 'left arrow / C-b' do
       def test_left(inputs, output, x:)
         editor = editor_for(inputs: inputs, lines: ["abcd"], x: x, y: 0)
@@ -183,11 +204,6 @@ RSpec.describe 'Editor' do
         test_left [?\C-b,  "!"], "!abcd\n", x: 0
         test_left ["\e[D", "!"], "!abcd\n", x: 0
       end
-    end
-
-    describe 'right arrow / C-f' do
-      it 'goes right one character'
-      it 'does not go right from one-past the last character'
     end
 
     describe 'escape' do

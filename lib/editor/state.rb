@@ -54,5 +54,9 @@ class Editor
     def cursor_left
       new x: [0, x-1].max
     end
+
+    def cursor_right
+      new x: x+1
+    end
   end
 end

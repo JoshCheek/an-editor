@@ -24,6 +24,10 @@ class Editor
       "\e[B"
     end
 
+    def right_arrow
+      "\e[C"
+    end
+
     def left_arrow
       "\e[D"
     end

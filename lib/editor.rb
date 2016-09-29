@@ -36,6 +36,7 @@ class Editor
     when ?\C-p, ansi.up_arrow   then self.state = state.cursor_up
     when ?\C-n, ansi.down_arrow then self.state = state.cursor_down
     when ?\C-b, ansi.left_arrow then self.state = state.cursor_left
+    when ?\C-f, ansi.right_arrow then self.state = state.cursor_right
     else self.state = state.insert(input)
     end
     self
