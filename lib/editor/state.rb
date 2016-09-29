@@ -8,8 +8,8 @@ class Editor
     attr_accessor :lines, :y, :x
     def initialize(lines:[], x:0, y:0)
       self.lines = lines
-      self.y     = y
-      self.x     = [crnt_line.length, x].min
+      self.y     = [0, [lines.length-1,   y].min].max
+      self.x     = [0, [crnt_line.length, x].min].max
     end
 
     def to_s

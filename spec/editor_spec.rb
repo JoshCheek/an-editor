@@ -113,6 +113,31 @@ RSpec.describe 'Editor' do
         .to eq "abcd!\n"
     end
 
+    context 'when it sets the cursor to an invalid location it corrects it' do
+      specify 'past the last line gets set to the last line' do
+        expect(Editor::State.new(lines: ["abc", "def"], y: 0).y).to eq 0
+        expect(Editor::State.new(lines: ["abc", "def"], y: 1).y).to eq 1
+        expect(Editor::State.new(lines: ["abc", "def"], y: 2).y).to eq 1
+      end
+
+      specify 'past the last character on the line gets set to 1 past' do
+        expect(Editor::State.new(lines: ["abc"], x: 2).x).to eq 2
+        expect(Editor::State.new(lines: ["abc"], x: 3).x).to eq 3
+        expect(Editor::State.new(lines: ["abc"], x: 4).x).to eq 3
+      end
+
+      specify 'before the first line gets set to the first line' do
+        expect(Editor::State.new(lines: ["abc", "def"], y: -1).y).to eq 0
+        expect(Editor::State.new(lines: ["abc", "def"], y: 0).y).to eq 0
+        expect(Editor::State.new(lines: ["abc", "def"], y: 1).y).to eq 1
+      end
+
+      specify 'before the first character on the line gets set to the first char' do
+        expect(Editor::State.new(lines: ["abc"], x: -1).x).to eq 0
+        expect(Editor::State.new(lines: ["abc"], x: 0).x).to eq 0
+        expect(Editor::State.new(lines: ["abc"], x: 1).x).to eq 1
+      end
+    end
 
     describe 'up arrow / C-p' do
       def test_up(inputs, output, y:)
@@ -153,14 +178,6 @@ RSpec.describe 'Editor' do
       it 'does not go down from the last line' do
         test_down [?\C-n,  "!"], "abcd\nef!gh\n", y: 1
         test_down ["\e[B", "!"], "abcd\nef!gh\n", y: 1
-      end
-    end
-
-    context 'when it sets the cursor to a column past the end of that line' do
-      it 'moves the cursor past the last character on the line' do
-        expect(Editor::State.new(lines: ["abc"], x: 2).x).to eq 2
-        expect(Editor::State.new(lines: ["abc"], x: 3).x).to eq 3
-        expect(Editor::State.new(lines: ["abc"], x: 4).x).to eq 3
       end
     end
 
