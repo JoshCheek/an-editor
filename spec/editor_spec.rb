@@ -165,8 +165,24 @@ RSpec.describe 'Editor' do
     end
 
     describe 'left arrow / C-b' do
-      it 'goes left one character'
-      it 'does not go left from the first character'
+      def test_left(inputs, output, x:)
+        editor = editor_for(inputs: inputs, lines: ["abcd"], x: x, y: 0)
+        inputs.each { editor.process }
+        expect(editor.to_s).to eq output
+      end
+
+      it 'goes left one character' do
+        test_left ["!"],         "ab!cd\n", x: 2
+        test_left [?\C-b, "!"],  "a!bcd\n", x: 2
+
+        test_left ["!"],         "ab!cd\n", x: 2
+        test_left ["\e[D", "!"], "a!bcd\n", x: 2
+      end
+
+      it 'does not go left from the first character' do
+        test_left [?\C-b,  "!"], "!abcd\n", x: 0
+        test_left ["\e[D", "!"], "!abcd\n", x: 0
+      end
     end
 
     describe 'right arrow / C-f' do

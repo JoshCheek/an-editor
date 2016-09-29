@@ -23,5 +23,9 @@ class Editor
     def down_arrow
       "\e[B"
     end
+
+    def left_arrow
+      "\e[D"
+    end
   end
 end
