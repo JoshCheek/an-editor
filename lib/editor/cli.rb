@@ -47,6 +47,8 @@ class Editor
         self.state = state.cursor_right
       when ansi.return
         self.state = state.return
+      when ansi.backspace
+        self.state = state.backspace
       else
         self.state = state.insert(input)
       end

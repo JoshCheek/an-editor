@@ -247,9 +247,20 @@ RSpec.describe 'Editor::CLI' do
     end
 
     describe 'delete' do
-      it 'deletes the character before the cursor'
-      it 'joins the current line to the previous line when it\'s at the beginning of the line'
-      it 'does nothing at the beginning of document'
+      it 'deletes the character before the cursor' do
+        expect(editor_for(lines:["abc"], x: 2, inputs:["\u007F", "B"]).process.process.to_s)
+          .to eq "aBc\r\n"
+      end
+
+      it 'joins the current line to the previous line when it\'s at the beginning of the line' do
+        expect(editor_for(lines:["abc", "def"], y: 1, x: 0, inputs:["\u007F", "B"]).process.process.to_s)
+          .to eq "abcBdef\r\n"
+      end
+
+      it 'does nothing at the beginning of document' do
+        expect(editor_for(lines:["abc"], y: 0, x: 0, inputs:["\u007F", "B"]).process.process.to_s)
+          .to eq "Babc\r\n"
+      end
     end
 
     # M-b, M-f, M-delete, C-k, C-u, C-y

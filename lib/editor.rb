@@ -58,6 +58,24 @@ class Editor
     new x: x+1
   end
 
+  def backspace
+    if at_bol? && y == 0
+      self
+    elsif at_bol?
+      lines = prev_lines
+      lines[-1] = (lines.last||"") + crnt_line
+      lines += rem_lines
+      cursor_up.to_end_of_line.new(lines: lines)
+    else
+      new(x: x-1).delete
+    end
+  end
+
+  def delete
+    line = pre_cursor + post_cursor
+    new lines: prev_lines + [line] + rem_lines
+  end
+
   def return
     if at_eol?
       crnt_lines = [crnt_line, ""]
@@ -81,6 +99,10 @@ class Editor
 
   def at_eol?
     x == crnt_line.length
+  end
+
+  def at_bol?
+    x == 0
   end
 
   def each_line(&block)

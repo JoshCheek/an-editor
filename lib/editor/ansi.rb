@@ -47,5 +47,9 @@ class Editor
     def bg_off
       "\e[49m"
     end
+
+    def backspace
+      "\u007F"
+    end
   end
 end
