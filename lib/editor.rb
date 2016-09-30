@@ -1,62 +1,85 @@
-require 'editor/state'
-
 class Editor
-  attr_reader :argv, :stdin, :stdout, :running, :state, :ansi
-
-  alias running? running
-
-  def initialize(argv:, stdin:, stdout:, lines:, x:, y:, ansi:)
-    self.argv    = argv
-    self.stdin   = stdin
-    self.stdout  = stdout
-    self.running = false
-    self.state   = State.new(lines: lines, x: x, y: y)
-    self.ansi    = ansi
+  def new(args)
+    args = {lines: lines, y: y, x: x}.merge(args)
+    self.class.new(args)
   end
 
-  def run
-    self.running = true
-    stdout.print ansi.hide_cursor
-    self
-  end
-
-  def finish
-    self.running = false
-    stdout.print ansi.show_cursor
-    self
-  end
-
-  def process
-    stdout.print ansi.topleft, ansi.clear, state.to_s
-    input = stdin.readpartial 1024
-    case input
-    when ?\C-d, ansi.escape
-      self.running = false
-    when ?\C-a
-      self.state = state.to_beginning_of_line
-    when ?\C-e
-      self.state = state.to_end_of_line
-    when ?\C-p, ansi.up_arrow
-      self.state = state.cursor_up
-    when ?\C-n, ansi.down_arrow
-      self.state = state.cursor_down
-    when ?\C-b, ansi.left_arrow
-      self.state = state.cursor_left
-    when ?\C-f, ansi.right_arrow
-      self.state = state.cursor_right
-    when ansi.return
-      self.state = state.return
-    else
-      self.state = state.insert(input)
-    end
-    self
+  attr_accessor :lines, :y, :x
+  def initialize(lines:[], x:0, y:0)
+    self.lines = lines
+    self.y     = [0, [lines.length-1,   y].min].max
+    self.x     = [0, [crnt_line.length, x].min].max
   end
 
   def to_s
-    state.to_s
+    lines.join("\r\n") << "\r\n"
   end
 
-  private
+  def insert(input)
+    line = self.crnt_line.dup
+    line[x, 0] = input
+    x = self.x + input.length
+    new x: x, lines: prev_lines + [line] + rem_lines
+  end
 
-  attr_writer :argv, :stdin, :stdout, :running, :state, :ansi
+  def prev_lines
+    lines[0...y]
+  end
+
+  def crnt_line
+    lines[y] || ""
+  end
+
+  def rem_lines
+    lines[y+1..-1] || []
+  end
+
+  def to_beginning_of_line
+    new x: 0
+  end
+
+  def to_end_of_line
+    new x: crnt_line.length
+  end
+
+  def cursor_up
+    new y: y-1
+  end
+
+  def cursor_down
+    new y: y+1
+  end
+
+  def cursor_left
+    new x: x-1
+  end
+
+  def cursor_right
+    new x: x+1
+  end
+
+  def return
+    if at_eol?
+      crnt_lines = [crnt_line, ""]
+    else
+      crnt_lines = [pre_cursor, at_cursor + post_cursor]
+    end
+    new x: 0, y: y+1, lines: prev_lines + crnt_lines + rem_lines
+  end
+
+  def pre_cursor
+    crnt_line[0...x]
+  end
+
+  def post_cursor
+    crnt_line[x+1..-1]
+  end
+
+  def at_cursor
+    crnt_line[x]
+  end
+
+  def at_eol?
+    x == crnt_line.length
+  end
 end

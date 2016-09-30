@@ -1,11 +1,11 @@
-require 'editor'
+require 'editor/cli'
 require 'editor/ansi'
 require 'spec_helper'
 
-RSpec.describe 'Editor' do
+RSpec.describe 'Editor::CLI' do
   def editor_for(lines:[], x: 0, y: 0, argv:[], inputs:[], stdout: TestHelpers::FakeOutstream.new, ansi: Editor::ANSI.new)
     stdin  = TestHelpers::FakeInstream.new(inputs)
-    Editor.new(lines: lines, x: x, y: y, argv: argv, stdout: stdout, stdin: stdin, ansi: ansi)
+    Editor::CLI.new(lines: lines, x: x, y: y, argv: argv, stdout: stdout, stdin: stdin, ansi: ansi)
   end
 
   def new_editor
@@ -121,27 +121,27 @@ RSpec.describe 'Editor' do
 
     context 'when it sets the cursor to an invalid location it corrects it' do
       specify 'past the last line gets set to the last line' do
-        expect(Editor::State.new(lines: ["abc", "def"], y: 0).y).to eq 0
-        expect(Editor::State.new(lines: ["abc", "def"], y: 1).y).to eq 1
-        expect(Editor::State.new(lines: ["abc", "def"], y: 2).y).to eq 1
+        expect(Editor.new(lines: ["abc", "def"], y: 0).y).to eq 0
+        expect(Editor.new(lines: ["abc", "def"], y: 1).y).to eq 1
+        expect(Editor.new(lines: ["abc", "def"], y: 2).y).to eq 1
       end
 
       specify 'past the last character on the line gets set to 1 past' do
-        expect(Editor::State.new(lines: ["abc"], x: 2).x).to eq 2
-        expect(Editor::State.new(lines: ["abc"], x: 3).x).to eq 3
-        expect(Editor::State.new(lines: ["abc"], x: 4).x).to eq 3
+        expect(Editor.new(lines: ["abc"], x: 2).x).to eq 2
+        expect(Editor.new(lines: ["abc"], x: 3).x).to eq 3
+        expect(Editor.new(lines: ["abc"], x: 4).x).to eq 3
       end
 
       specify 'before the first line gets set to the first line' do
-        expect(Editor::State.new(lines: ["abc", "def"], y: -1).y).to eq 0
-        expect(Editor::State.new(lines: ["abc", "def"], y: 0).y).to eq 0
-        expect(Editor::State.new(lines: ["abc", "def"], y: 1).y).to eq 1
+        expect(Editor.new(lines: ["abc", "def"], y: -1).y).to eq 0
+        expect(Editor.new(lines: ["abc", "def"], y: 0).y).to eq 0
+        expect(Editor.new(lines: ["abc", "def"], y: 1).y).to eq 1
       end
 
       specify 'before the first character on the line gets set to the first char' do
-        expect(Editor::State.new(lines: ["abc"], x: -1).x).to eq 0
-        expect(Editor::State.new(lines: ["abc"], x: 0).x).to eq 0
-        expect(Editor::State.new(lines: ["abc"], x: 1).x).to eq 1
+        expect(Editor.new(lines: ["abc"], x: -1).x).to eq 0
+        expect(Editor.new(lines: ["abc"], x: 0).x).to eq 0
+        expect(Editor.new(lines: ["abc"], x: 1).x).to eq 1
       end
     end
 

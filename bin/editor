@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
 $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
-require 'editor'
+require 'editor/cli'
 require 'editor/ansi'
 require 'io/console'
 
-editor = Editor.new(
+editor = Editor::CLI.new(
   lines:  [],
   x:      0,
   y:      0,
