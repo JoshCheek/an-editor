@@ -4,6 +4,10 @@ class Editor
       "\e"
     end
 
+    def return
+      "\r"
+    end
+
     def hide_cursor
       "\e[?25l"
     end

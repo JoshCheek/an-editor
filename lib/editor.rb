@@ -44,6 +44,8 @@ class Editor
       self.state = state.cursor_left
     when ?\C-f, ansi.right_arrow
       self.state = state.cursor_right
+    when ansi.return
+      self.state = state.return
     else
       self.state = state.insert(input)
     end

@@ -230,9 +230,20 @@ RSpec.describe 'Editor' do
     end
 
     describe 'return' do
-      it 'adds a line to the end of the buffer when it is at the end of the document'
-      it 'inserts an empty line when it\'s at the end of a line'
-      it 'breaks a line at the cursor when it\'s in the middle of a line'
+      it 'adds a line to the end of the buffer when it is at the end of the document' do
+        editor = editor_for(lines:["abc", "def"], x: 3, y: 1, inputs:["\r", "A"])
+        expect(editor.process.process.to_s).to eq "abc\ndef\nA\n"
+      end
+
+      it 'inserts an empty line when it\'s at the end of a line' do
+        editor = editor_for(lines:["abc", "def"], x: 3, y: 0, inputs:["\r", "A"])
+        expect(editor.process.process.to_s).to eq "abc\nA\ndef\n"
+      end
+
+      it 'breaks a line at the cursor when it\'s in the middle of a line' do
+        editor = editor_for(lines:["abc", "def"], x: 1, y: 0, inputs:["\r", "A"])
+        expect(editor.process.process.to_s).to eq "a\nAbc\ndef\n"
+      end
     end
 
     describe 'delete' do

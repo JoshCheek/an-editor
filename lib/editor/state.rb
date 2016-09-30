@@ -20,10 +20,10 @@ class Editor
       line = self.crnt_line.dup
       line[x, 0] = input
       x = self.x + input.length
-      new x: x, lines: prev_line + [line] + rem_lines
+      new x: x, lines: prev_lines + [line] + rem_lines
     end
 
-    def prev_line
+    def prev_lines
       lines[0...y]
     end
 
@@ -57,6 +57,31 @@ class Editor
 
     def cursor_right
       new x: x+1
+    end
+
+    def return
+      if at_eol?
+        crnt_lines = [crnt_line, ""]
+      else
+        crnt_lines = [pre_cursor, at_cursor + post_cursor]
+      end
+      new x: 0, y: y+1, lines: prev_lines + crnt_lines + rem_lines
+    end
+
+    def pre_cursor
+      crnt_line[0...x]
+    end
+
+    def post_cursor
+      crnt_line[x+1..-1]
+    end
+
+    def at_cursor
+      crnt_line[x]
+    end
+
+    def at_eol?
+      x == crnt_line.length
     end
   end
 end
