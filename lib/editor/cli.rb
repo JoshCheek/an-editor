@@ -28,7 +28,7 @@ class Editor
     end
 
     def process
-      stdout.print ansi.topleft, ansi.clear, state.to_s
+      render
       input = stdin.readpartial 1024
       case input
       when ?\C-d, ansi.escape
@@ -51,6 +51,19 @@ class Editor
         self.state = state.insert(input)
       end
       self
+    end
+
+    def render
+      stdout.print ansi.topleft, ansi.clear
+      if state.empty?
+        stdout.print "#{ansi.bg_blue} #{ansi.bg_off}\r\n"
+      end
+      state.each_line do |line, cursor|
+        if cursor
+          line = line[0...cursor] + "#{ansi.bg_blue}#{line[cursor]||" "}#{ansi.bg_off}" + (line[cursor+1..-1]||"")
+        end
+        stdout.print line, "\r\n"
+      end
     end
 
     def to_s

@@ -67,12 +67,12 @@ RSpec.describe 'Editor::CLI' do
   end
 
   describe 'process' do
-    it 'clears the screen and prints the current buffer' do
+    it 'clears the screen and prints the current buffer with the cursor' do
       editor = editor_for inputs: ["a", "b", "c"]
       expect(editor.stdout.printed).to eq ""
-      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\r\n"
-      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\r\n" "\e[H\e[2Ja\r\n"
-      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\r\n" "\e[H\e[2Ja\r\n" "\e[H\e[2Jab\r\n"
+      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\e[44m \e[49m\r\n"
+      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\e[44m \e[49m\r\n" "\e[H\e[2Ja\e[44m \e[49m\r\n"
+      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\e[44m \e[49m\r\n" "\e[H\e[2Ja\e[44m \e[49m\r\n" "\e[H\e[2Jab\e[44m \e[49m\r\n"
     end
 
     it 'reads in one chunk of input and processes it' do

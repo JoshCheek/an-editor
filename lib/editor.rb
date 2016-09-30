@@ -82,4 +82,16 @@ class Editor
   def at_eol?
     x == crnt_line.length
   end
+
+  def each_line(&block)
+    lines.each_with_index do |line, index|
+      cursor = nil
+      cursor = x if index == y
+      block.call line, cursor
+    end
+  end
+
+  def empty?
+    lines.empty?
+  end
 end

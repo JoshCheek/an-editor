@@ -39,5 +39,13 @@ class Editor
     def left_arrow
       "\e[D"
     end
+
+    def bg_blue
+      "\e[44m"
+    end
+
+    def bg_off
+      "\e[49m"
+    end
   end
 end
