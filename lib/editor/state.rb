@@ -13,7 +13,7 @@ class Editor
     end
 
     def to_s
-      lines.join("\n") << "\n"
+      lines.join("\r\n") << "\r\n"
     end
 
     def insert(input)

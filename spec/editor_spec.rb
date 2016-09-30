@@ -70,23 +70,23 @@ RSpec.describe 'Editor' do
     it 'clears the screen and prints the current buffer' do
       editor = editor_for inputs: ["a", "b", "c"]
       expect(editor.stdout.printed).to eq ""
-      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\n"
-      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\n" "\e[H\e[2Ja\n"
-      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\n" "\e[H\e[2Ja\n" "\e[H\e[2Jab\n"
+      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\r\n"
+      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\r\n" "\e[H\e[2Ja\r\n"
+      expect(editor.process.stdout.printed).to eq "\e[H\e[2J\r\n" "\e[H\e[2Ja\r\n" "\e[H\e[2Jab\r\n"
     end
 
     it 'reads in one chunk of input and processes it' do
       editor = editor_for inputs: ["a", "b"]
-      expect(editor.to_s).to eq "\n"
+      expect(editor.to_s).to eq "\r\n"
       expect(editor.process.stdin.remaining).to eq ["b"]
-      expect(editor.to_s).to eq "a\n"
+      expect(editor.to_s).to eq "a\r\n"
     end
 
     specify 'text gets appended to the buffer' do
       editor = editor_for inputs: ["a", "b", "c"]
-      expect(editor.process.to_s).to eq "a\n"
-      expect(editor.process.to_s).to eq "ab\n"
-      expect(editor.process.to_s).to eq "abc\n"
+      expect(editor.process.to_s).to eq "a\r\n"
+      expect(editor.process.to_s).to eq "ab\r\n"
+      expect(editor.process.to_s).to eq "abc\r\n"
     end
 
     specify 'C-d and esc set it to not running' do
@@ -94,29 +94,29 @@ RSpec.describe 'Editor' do
       editor.run
       expect(editor).to be_running
       expect(editor.process).to_not be_running
-      expect(editor.to_s).to eq "\n"
+      expect(editor.to_s).to eq "\r\n"
 
       editor = editor_for inputs: ["\e", "a"]
       editor.run
       expect(editor).to be_running
       expect(editor.process).to_not be_running
-      expect(editor.to_s).to eq "\n"
+      expect(editor.to_s).to eq "\r\n"
     end
 
     specify 'C-a goes to the beginning of the line' do
       expect(editor_for(inputs: ["!"], lines: ["abcd"], x: 2).process.to_s)
-        .to eq "ab!cd\n"
+        .to eq "ab!cd\r\n"
 
       expect(editor_for(inputs: [?\C-a, "!"], lines: ["abcd"], x: 2).process.process.to_s)
-        .to eq "!abcd\n"
+        .to eq "!abcd\r\n"
     end
 
     specify 'C-e goes to the end of the line' do
       expect(editor_for(inputs: ["!"], lines: ["abcd"], x: 2).process.to_s)
-        .to eq "ab!cd\n"
+        .to eq "ab!cd\r\n"
 
       expect(editor_for(inputs: [?\C-e, "!"], lines: ["abcd"], x: 2).process.process.to_s)
-        .to eq "abcd!\n"
+        .to eq "abcd!\r\n"
     end
 
     context 'when it sets the cursor to an invalid location it corrects it' do
@@ -153,16 +153,16 @@ RSpec.describe 'Editor' do
       end
 
       it 'goes up one line' do
-        test_up ["!"],         "abcd\nef!gh\n", y: 1
-        test_up [?\C-p, "!"],  "ab!cd\nefgh\n", y: 1
+        test_up ["!"],         "abcd\r\nef!gh\r\n", y: 1
+        test_up [?\C-p, "!"],  "ab!cd\r\nefgh\r\n", y: 1
 
-        test_up ["!"],         "abcd\nef!gh\n", y: 1
-        test_up ["\e[A", "!"], "ab!cd\nefgh\n", y: 1
+        test_up ["!"],         "abcd\r\nef!gh\r\n", y: 1
+        test_up ["\e[A", "!"], "ab!cd\r\nefgh\r\n", y: 1
       end
 
       it 'does not go up from the first line' do
-        test_up [?\C-p,  "!"], "ab!cd\nefgh\n", y: 0
-        test_up ["\e[A", "!"], "ab!cd\nefgh\n", y: 0
+        test_up [?\C-p,  "!"], "ab!cd\r\nefgh\r\n", y: 0
+        test_up ["\e[A", "!"], "ab!cd\r\nefgh\r\n", y: 0
       end
     end
 
@@ -174,16 +174,16 @@ RSpec.describe 'Editor' do
       end
 
       it 'goes down one line' do
-        test_down ["!"],         "ab!cd\nefgh\n", y: 0
-        test_down [?\C-n, "!"],  "abcd\nef!gh\n", y: 0
+        test_down ["!"],         "ab!cd\r\nefgh\r\n", y: 0
+        test_down [?\C-n, "!"],  "abcd\r\nef!gh\r\n", y: 0
 
-        test_down ["!"],         "ab!cd\nefgh\n", y: 0
-        test_down ["\e[B", "!"], "abcd\nef!gh\n", y: 0
+        test_down ["!"],         "ab!cd\r\nefgh\r\n", y: 0
+        test_down ["\e[B", "!"], "abcd\r\nef!gh\r\n", y: 0
       end
 
       it 'does not go down from the last line' do
-        test_down [?\C-n,  "!"], "abcd\nef!gh\n", y: 1
-        test_down ["\e[B", "!"], "abcd\nef!gh\n", y: 1
+        test_down [?\C-n,  "!"], "abcd\r\nef!gh\r\n", y: 1
+        test_down ["\e[B", "!"], "abcd\r\nef!gh\r\n", y: 1
       end
     end
 
@@ -195,16 +195,16 @@ RSpec.describe 'Editor' do
       end
 
       it 'goes right one character' do
-        test_right ["!"],         "ab!cd\n", x: 2
-        test_right [?\C-f, "!"],  "abc!d\n", x: 2
+        test_right ["!"],         "ab!cd\r\n", x: 2
+        test_right [?\C-f, "!"],  "abc!d\r\n", x: 2
 
-        test_right ["!"],         "ab!cd\n", x: 2
-        test_right ["\e[C", "!"], "abc!d\n", x: 2
+        test_right ["!"],         "ab!cd\r\n", x: 2
+        test_right ["\e[C", "!"], "abc!d\r\n", x: 2
       end
 
       it 'does not go right from one-past the last character' do
-        test_right [?\C-f,  "!"], "abcd!\n", x: 4
-        test_right ["\e[C", "!"], "abcd!\n", x: 4
+        test_right [?\C-f,  "!"], "abcd!\r\n", x: 4
+        test_right ["\e[C", "!"], "abcd!\r\n", x: 4
       end
     end
 
@@ -216,33 +216,33 @@ RSpec.describe 'Editor' do
       end
 
       it 'goes left one character' do
-        test_left ["!"],         "ab!cd\n", x: 2
-        test_left [?\C-b, "!"],  "a!bcd\n", x: 2
+        test_left ["!"],         "ab!cd\r\n", x: 2
+        test_left [?\C-b, "!"],  "a!bcd\r\n", x: 2
 
-        test_left ["!"],         "ab!cd\n", x: 2
-        test_left ["\e[D", "!"], "a!bcd\n", x: 2
+        test_left ["!"],         "ab!cd\r\n", x: 2
+        test_left ["\e[D", "!"], "a!bcd\r\n", x: 2
       end
 
       it 'does not go left from the first character' do
-        test_left [?\C-b,  "!"], "!abcd\n", x: 0
-        test_left ["\e[D", "!"], "!abcd\n", x: 0
+        test_left [?\C-b,  "!"], "!abcd\r\n", x: 0
+        test_left ["\e[D", "!"], "!abcd\r\n", x: 0
       end
     end
 
     describe 'return' do
       it 'adds a line to the end of the buffer when it is at the end of the document' do
         editor = editor_for(lines:["abc", "def"], x: 3, y: 1, inputs:["\r", "A"])
-        expect(editor.process.process.to_s).to eq "abc\ndef\nA\n"
+        expect(editor.process.process.to_s).to eq "abc\r\ndef\r\nA\r\n"
       end
 
       it 'inserts an empty line when it\'s at the end of a line' do
         editor = editor_for(lines:["abc", "def"], x: 3, y: 0, inputs:["\r", "A"])
-        expect(editor.process.process.to_s).to eq "abc\nA\ndef\n"
+        expect(editor.process.process.to_s).to eq "abc\r\nA\r\ndef\r\n"
       end
 
       it 'breaks a line at the cursor when it\'s in the middle of a line' do
         editor = editor_for(lines:["abc", "def"], x: 1, y: 0, inputs:["\r", "A"])
-        expect(editor.process.process.to_s).to eq "a\nAbc\ndef\n"
+        expect(editor.process.process.to_s).to eq "a\r\nAbc\r\ndef\r\n"
       end
     end
 
