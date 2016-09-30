@@ -2,7 +2,7 @@ require 'editor'
 
 class Editor
   class CLI
-    attr_reader :argv, :stdin, :stdout, :running, :state, :ansi, :undos, :redos
+    attr_reader :argv, :stdin, :stdout, :running, :editor, :ansi, :undos, :redos
 
     alias running? running
 
@@ -11,7 +11,7 @@ class Editor
       self.stdin   = stdin
       self.stdout  = stdout
       self.running = false
-      self.state   = Editor.new(lines: lines, x: x, y: y)
+      self.editor   = Editor.new(lines: lines, x: x, y: y)
       self.ansi    = ansi
       self.undos   = []
       self.redos   = []
@@ -36,44 +36,44 @@ class Editor
       when ?\C-d, ansi.escape
         self.running = false
       when ?\C-a
-        self.state = state.to_beginning_of_line
+        self.editor = editor.to_beginning_of_line
       when ?\C-e
-        self.state = state.to_end_of_line
+        self.editor = editor.to_end_of_line
       when ?\C-p, ansi.up_arrow
-        self.state = state.cursor_up
+        self.editor = editor.cursor_up
       when ?\C-n, ansi.down_arrow
-        self.state = state.cursor_down
+        self.editor = editor.cursor_down
       when ?\C-b, ansi.left_arrow
-        self.state = state.cursor_left
+        self.editor = editor.cursor_left
       when ?\C-f, ansi.right_arrow
-        self.state = state.cursor_right
+        self.editor = editor.cursor_right
       when ?\C-u
         undo!
       when ?\C-r
         redo!
       when ansi.meta_b
-        self.state = state.back_word
+        self.editor = editor.back_word
       when ansi.meta_f
-        self.state = state.forward_word
+        self.editor = editor.forward_word
       when ansi.return
         save_undo
-        self.state = state.return
+        self.editor = editor.return
       when ansi.backspace
         save_undo
-        self.state = state.backspace
+        self.editor = editor.backspace
       else
         save_undo
-        self.state = state.insert(input)
+        self.editor = editor.insert(input)
       end
       self
     end
 
     def render
       stdout.print ansi.topleft, ansi.clear
-      if state.empty?
+      if editor.empty?
         stdout.print "#{ansi.bg_blue} #{ansi.bg_off}\r\n"
       end
-      state.each_line do |line, cursor|
+      editor.each_line do |line, cursor|
         if cursor
           line = line[0...cursor] + "#{ansi.bg_blue}#{line[cursor]||" "}#{ansi.bg_off}" + (line[cursor+1..-1]||"")
         end
@@ -82,27 +82,27 @@ class Editor
     end
 
     def to_s
-      state.to_s
+      editor.to_s
     end
 
     private
 
-    attr_writer :argv, :stdin, :stdout, :running, :state, :ansi, :undos, :redos
+    attr_writer :argv, :stdin, :stdout, :running, :editor, :ansi, :undos, :redos
 
     def save_undo
-      undos << state
+      undos << editor
     end
 
     def undo!
       return unless undos.any?
-      redos.push state
-      self.state = undos.pop
+      redos.push editor
+      self.editor = undos.pop
     end
 
     def redo!
       return unless redos.any?
-      undos.push state
-      self.state = redos.pop
+      undos.push editor
+      self.editor = redos.pop
     end
   end
 end
