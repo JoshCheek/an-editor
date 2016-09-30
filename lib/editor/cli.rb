@@ -2,7 +2,7 @@ require 'editor'
 
 class Editor
   class CLI
-    attr_reader :argv, :stdin, :stdout, :running, :state, :ansi
+    attr_reader :argv, :stdin, :stdout, :running, :state, :ansi, :undoes
 
     alias running? running
 
@@ -13,6 +13,7 @@ class Editor
       self.running = false
       self.state   = Editor.new(lines: lines, x: x, y: y)
       self.ansi    = ansi
+      self.undoes  = []
     end
 
     def run
@@ -45,15 +46,20 @@ class Editor
         self.state = state.cursor_left
       when ?\C-f, ansi.right_arrow
         self.state = state.cursor_right
-      when ansi.return
-        self.state = state.return
-      when ansi.backspace
-        self.state = state.backspace
+      when ?\C-u
+        self.state = pop_state
       when ansi.meta_b
         self.state = state.back_word
       when ansi.meta_f
         self.state = state.forward_word
+      when ansi.return
+        push_state
+        self.state = state.return
+      when ansi.backspace
+        push_state
+        self.state = state.backspace
       else
+        push_state
         self.state = state.insert(input)
       end
       self
@@ -78,6 +84,14 @@ class Editor
 
     private
 
-    attr_writer :argv, :stdin, :stdout, :running, :state, :ansi
+    attr_writer :argv, :stdin, :stdout, :running, :state, :ansi, :undoes
+
+    def push_state
+      undoes << state
+    end
+
+    def pop_state
+      undoes.pop || state
+    end
   end
 end

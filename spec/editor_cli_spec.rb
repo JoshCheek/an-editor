@@ -82,42 +82,76 @@ RSpec.describe 'Editor::CLI' do
       expect(editor.to_s).to eq "a\r\n"
     end
 
-    specify 'text gets appended to the buffer' do
-      editor = editor_for inputs: ["a", "b", "c"]
-      expect(editor.process.to_s).to eq "a\r\n"
-      expect(editor.process.to_s).to eq "ab\r\n"
-      expect(editor.process.to_s).to eq "abc\r\n"
+    describe 'text' do
+      specify 'it gets appended to the buffer' do
+        editor = editor_for inputs: ["a", "b", "c"]
+        expect(editor.process.to_s).to eq "a\r\n"
+        expect(editor.process.to_s).to eq "ab\r\n"
+        expect(editor.process.to_s).to eq "abc\r\n"
+      end
+
+      it 'gets added to the undo list' do
+        editor = editor_for inputs: ["a", "b", "c"]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last.to_s).to eq "\r\n"
+      end
     end
 
-    specify 'C-d and esc set it to not running' do
-      editor = editor_for inputs: [?\C-d, "a"]
-      editor.run
-      expect(editor).to be_running
-      expect(editor.process).to_not be_running
-      expect(editor.to_s).to eq "\r\n"
+    describe 'C-d and escape' do
+      specify 'set it to not running' do
+        editor = editor_for inputs: [?\C-d, "a"]
+        editor.run
+        expect(editor).to be_running
+        expect(editor.process).to_not be_running
+        expect(editor.to_s).to eq "\r\n"
 
-      editor = editor_for inputs: ["\e", "a"]
-      editor.run
-      expect(editor).to be_running
-      expect(editor.process).to_not be_running
-      expect(editor.to_s).to eq "\r\n"
+        editor = editor_for inputs: ["\e", "a"]
+        editor.run
+        expect(editor).to be_running
+        expect(editor.process).to_not be_running
+        expect(editor.to_s).to eq "\r\n"
+      end
+
+      specify 'they do not modify the undo list' do
+        editor = editor_for inputs: ["\e"]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last).to eq nil
+      end
     end
 
-    specify 'C-a goes to the beginning of the line' do
-      expect(editor_for(inputs: ["!"], lines: ["abcd"], x: 2).process.to_s)
-        .to eq "ab!cd\r\n"
 
-      expect(editor_for(inputs: [?\C-a, "!"], lines: ["abcd"], x: 2).process.process.to_s)
-        .to eq "!abcd\r\n"
+    describe 'C-a' do
+      it 'goes to the beginning of the line' do
+        expect(editor_for(inputs: ["!"], lines: ["abcd"], x: 2).process.to_s)
+          .to eq "ab!cd\r\n"
+
+        expect(editor_for(inputs: [?\C-a, "!"], lines: ["abcd"], x: 2).process.process.to_s)
+          .to eq "!abcd\r\n"
+      end
+
+      it 'does do not modify the undo list' do
+        editor = editor_for inputs: [?\C-a]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last).to eq nil
+      end
     end
 
-    specify 'C-e goes to the end of the line' do
-      expect(editor_for(inputs: ["!"], lines: ["abcd"], x: 2).process.to_s)
-        .to eq "ab!cd\r\n"
+    describe 'C-e' do
+      it 'goes to the end of the line' do
+        expect(editor_for(inputs: ["!"], lines: ["abcd"], x: 2).process.to_s)
+          .to eq "ab!cd\r\n"
 
-      expect(editor_for(inputs: [?\C-e, "!"], lines: ["abcd"], x: 2).process.process.to_s)
-        .to eq "abcd!\r\n"
+        expect(editor_for(inputs: [?\C-e, "!"], lines: ["abcd"], x: 2).process.process.to_s)
+          .to eq "abcd!\r\n"
+      end
+
+      it 'does do not modify the undo list' do
+        editor = editor_for inputs: [?\C-e]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last).to eq nil
+      end
     end
+
 
     context 'when it sets the cursor to an invalid location it corrects it' do
       specify 'past the last line gets set to the last line' do
@@ -164,6 +198,12 @@ RSpec.describe 'Editor::CLI' do
         test_up [?\C-p,  "!"], "ab!cd\r\nefgh\r\n", y: 0
         test_up ["\e[A", "!"], "ab!cd\r\nefgh\r\n", y: 0
       end
+
+      it 'does do not modify the undo list' do
+        editor = editor_for inputs: [?\C-p]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last).to eq nil
+      end
     end
 
     describe 'down arrow / C-n' do
@@ -184,6 +224,12 @@ RSpec.describe 'Editor::CLI' do
       it 'does not go down from the last line' do
         test_down [?\C-n,  "!"], "abcd\r\nef!gh\r\n", y: 1
         test_down ["\e[B", "!"], "abcd\r\nef!gh\r\n", y: 1
+      end
+
+      it 'does do not modify the undo list' do
+        editor = editor_for inputs: [?\C-n]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last).to eq nil
       end
     end
 
@@ -206,6 +252,12 @@ RSpec.describe 'Editor::CLI' do
         test_right [?\C-f,  "!"], "abcd!\r\n", x: 4
         test_right ["\e[C", "!"], "abcd!\r\n", x: 4
       end
+
+      it 'does do not modify the undo list' do
+        editor = editor_for inputs: [?\C-f]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last).to eq nil
+      end
     end
 
     describe 'left arrow / C-b' do
@@ -227,6 +279,12 @@ RSpec.describe 'Editor::CLI' do
         test_left [?\C-b,  "!"], "!abcd\r\n", x: 0
         test_left ["\e[D", "!"], "!abcd\r\n", x: 0
       end
+
+      it 'does do not modify the undo list' do
+        editor = editor_for inputs: [?\C-b]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last).to eq nil
+      end
     end
 
     describe 'return' do
@@ -243,6 +301,12 @@ RSpec.describe 'Editor::CLI' do
       it 'breaks a line at the cursor when it\'s in the middle of a line' do
         editor = editor_for(lines:["abc", "def"], x: 1, y: 0, inputs:["\r", "A"])
         expect(editor.process.process.to_s).to eq "a\r\nAbc\r\ndef\r\n"
+      end
+
+      it 'adds the previous state to the undo list' do
+        editor = editor_for inputs: ["\r"]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last.to_s).to eq "\r\n"
       end
     end
 
@@ -261,9 +325,14 @@ RSpec.describe 'Editor::CLI' do
         expect(editor_for(lines:["abc"], y: 0, x: 0, inputs:["\u007F", "B"]).process.process.to_s)
           .to eq "Babc\r\n"
       end
+
+      it 'adds the previous state to the undo list' do
+        editor = editor_for inputs: ["\u007F"]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last.to_s).to eq "\r\n"
+      end
     end
 
-    # M-delete, C-k, C-u, C-y
     describe 'M-b moves back a word' do
       it 'moves to the beginning of the current word when it is in the middle of a word' do
         expect(editor_for(lines:["abc defg"], x: 6, inputs:["\eb", "X"]).process.process.to_s)
@@ -288,6 +357,12 @@ RSpec.describe 'Editor::CLI' do
         expect(editor_for(lines:["abc"], x: 0, inputs:["\eb", "X"]).process.process.to_s)
           .to eq "Xabc\r\n"
       end
+
+      it 'does do not modify the undo list' do
+        editor = editor_for inputs: ["\eb"]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last).to eq nil
+      end
     end
 
     describe 'M-f moves back a word' do
@@ -305,6 +380,29 @@ RSpec.describe 'Editor::CLI' do
         expect(editor_for(lines:["abc def"], x: 7, inputs:["\ef", "X"]).process.process.to_s)
           .to eq "abc defX\r\n"
       end
+
+      it 'does do not modify the undo list' do
+        editor = editor_for inputs: ["\ef"]
+        expect(editor.undoes.last).to eq nil
+        expect(editor.process.undoes.last).to eq nil
+      end
     end
+
+    describe 'C-u' do
+      it 'undoes the last change when there are changes to undo' do
+        e = editor_for(lines: ["abcd"], x: 3, inputs: ["\u007F", "\u007F", ?\C-u, ?\C-u])
+        expect(e.process.process.to_s).to eq "ad\r\n"
+        expect(e.process.to_s).to eq "abd\r\n"
+        expect(e.process.to_s).to eq "abcd\r\n"
+      end
+
+      it 'does nothing when there are no changes to undo' do
+        e = editor_for(lines: ["abcd"], x: 3, inputs: [?\C-u])
+        expect(e.to_s).to eq "abcd\r\n"
+        expect(e.process.to_s).to eq "abcd\r\n"
+      end
+    end
+
+    # M-delete, C-k, C-u, C-y
   end
 end
