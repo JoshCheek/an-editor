@@ -51,5 +51,9 @@ class Editor
     def backspace
       "\u007F"
     end
+
+    def meta_b
+      "\eb"
+    end
   end
 end

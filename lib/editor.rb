@@ -116,4 +116,27 @@ class Editor
   def empty?
     lines.empty?
   end
+
+  def back_word
+    x = self.x
+    if at_beginning_of_word?
+      x -= 1
+    end
+    while char_at(y, x) =~ /\s/
+      x -= 1
+    end
+    while char_at(y, x) =~ /\w/
+      x -= 1
+    end
+    x += 1
+    new(x: x)
+  end
+
+  def char_at(y, x)
+    (lines[y] || "")[x] || ""
+  end
+
+  def at_beginning_of_word?
+    char_at(y, x) =~ /\w/ && (at_bol? || char_at(y, x-1) =~ /\s/)
+  end
 end

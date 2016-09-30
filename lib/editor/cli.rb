@@ -49,6 +49,8 @@ class Editor
         self.state = state.return
       when ansi.backspace
         self.state = state.backspace
+      when ansi.meta_b
+        self.state = state.back_word
       else
         self.state = state.insert(input)
       end
