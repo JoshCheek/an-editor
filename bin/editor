@@ -23,3 +23,5 @@ $stdin.raw do
     editor.finish
   end
 end
+
+print "\r"
