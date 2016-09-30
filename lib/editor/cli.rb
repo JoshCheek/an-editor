@@ -2,7 +2,7 @@ require 'editor'
 
 class Editor
   class CLI
-    attr_reader :argv, :stdin, :stdout, :running, :state, :ansi, :undoes
+    attr_reader :argv, :stdin, :stdout, :running, :state, :ansi, :undos, :redos
 
     alias running? running
 
@@ -13,7 +13,8 @@ class Editor
       self.running = false
       self.state   = Editor.new(lines: lines, x: x, y: y)
       self.ansi    = ansi
-      self.undoes  = []
+      self.undos   = []
+      self.redos   = []
     end
 
     def run
@@ -47,19 +48,21 @@ class Editor
       when ?\C-f, ansi.right_arrow
         self.state = state.cursor_right
       when ?\C-u
-        self.state = pop_state
+        undo!
+      when ?\C-r
+        redo!
       when ansi.meta_b
         self.state = state.back_word
       when ansi.meta_f
         self.state = state.forward_word
       when ansi.return
-        push_state
+        save_undo
         self.state = state.return
       when ansi.backspace
-        push_state
+        save_undo
         self.state = state.backspace
       else
-        push_state
+        save_undo
         self.state = state.insert(input)
       end
       self
@@ -84,14 +87,22 @@ class Editor
 
     private
 
-    attr_writer :argv, :stdin, :stdout, :running, :state, :ansi, :undoes
+    attr_writer :argv, :stdin, :stdout, :running, :state, :ansi, :undos, :redos
 
-    def push_state
-      undoes << state
+    def save_undo
+      undos << state
     end
 
-    def pop_state
-      undoes.pop || state
+    def undo!
+      return unless undos.any?
+      redos.push state
+      self.state = undos.pop
+    end
+
+    def redo!
+      return unless redos.any?
+      undos.push state
+      self.state = redos.pop
     end
   end
 end
