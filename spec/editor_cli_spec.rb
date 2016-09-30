@@ -271,8 +271,10 @@ RSpec.describe 'Editor::CLI' do
       end
 
       it 'moves to the beginning of the previous word when it is in a space' do
-        expect(editor_for(lines:["abc def ghi"], x: 7, inputs:["\eb", "X"]).process.process.to_s)
-          .to eq "abc Xdef ghi\r\n"
+        expect(editor_for(lines:["abc  def  ghi"], x: 9, inputs:["\eb", "X"]).process.process.to_s)
+          .to eq "abc  Xdef  ghi\r\n"
+        expect(editor_for(lines:["abc def"], x: 7, inputs:["\eb", "X"]).process.process.to_s)
+          .to eq "abc Xdef\r\n"
         expect(editor_for(lines:["abc"], x: 1, inputs:["\eb", "X"]).process.process.to_s)
           .to eq "Xabc\r\n"
       end
