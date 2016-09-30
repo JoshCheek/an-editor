@@ -119,16 +119,17 @@ class Editor
 
   def back_word
     x = self.x
-    if at_beginning_of_word?
-      x -= 1
-    end
-    while char_at(y, x) =~ /\s/
-      x -= 1
-    end
-    while char_at(y, x) =~ /\w/
-      x -= 1
-    end
+    x -= 1 if at_beginning_of_word?
+    x -= 1 while char_at(y, x) =~ /\s/
+    x -= 1 while char_at(y, x) =~ /\w/
     x += 1
+    new(x: x)
+  end
+
+  def forward_word
+    x = self.x
+    x += 1 while char_at(y, x) =~ /\s/
+    x += 1 while char_at(y, x) =~ /\w/
     new(x: x)
   end
 

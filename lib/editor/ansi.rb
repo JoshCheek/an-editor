@@ -55,5 +55,9 @@ class Editor
     def meta_b
       "\eb"
     end
+
+    def meta_f
+      "\ef"
+    end
   end
 end

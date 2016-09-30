@@ -263,7 +263,7 @@ RSpec.describe 'Editor::CLI' do
       end
     end
 
-    # M-b, M-f, M-delete, C-k, C-u, C-y
+    # M-delete, C-k, C-u, C-y
     describe 'M-b moves back a word' do
       it 'moves to the beginning of the current word when it is in the middle of a word' do
         expect(editor_for(lines:["abc defg"], x: 6, inputs:["\eb", "X"]).process.process.to_s)
@@ -285,6 +285,23 @@ RSpec.describe 'Editor::CLI' do
       it 'does not move past the beginning of the line' do
         expect(editor_for(lines:["abc"], x: 0, inputs:["\eb", "X"]).process.process.to_s)
           .to eq "Xabc\r\n"
+      end
+    end
+
+    describe 'M-f moves back a word' do
+      it 'moves to the space after the current word when it is in the middle of a word' do
+        expect(editor_for(lines:["abc defg"], x: 1, inputs:["\ef", "X"]).process.process.to_s)
+          .to eq "abcX defg\r\n"
+      end
+
+      it 'moves to the space after the next word when it is in the space after the current word' do
+        expect(editor_for(lines:["abc  def  ghi"], x: 3, inputs:["\ef", "X"]).process.process.to_s)
+          .to eq "abc  defX  ghi\r\n"
+      end
+
+      it 'does not move when it is after the last word on a line' do
+        expect(editor_for(lines:["abc def"], x: 7, inputs:["\ef", "X"]).process.process.to_s)
+          .to eq "abc defX\r\n"
       end
     end
   end
