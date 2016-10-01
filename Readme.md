@@ -3,10 +3,14 @@ Writing an editor
 
 Inspired by Gary Bernhardt's [https://www.twitch.tv/gary_bernhardt/v/90796516?t=11m57s](https://www.twitch.tv/gary_bernhardt/v/90796516?t=11m57s)
 
-Videos:
+
+Videos of development
+---------------------
+
 * [Non TDD](https://vimeo.com/184933811)
 * [TDD part 1](https://vimeo.com/184969859)
-* Coming soon: [TDD part 2](http://www.example.com)
+* Coming soon: [TDD part 2](https://vimeo.com/185090883)
+
 
 Previous super-simple versions I did for
 ----------------------------------------

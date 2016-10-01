@@ -129,7 +129,7 @@ RSpec.describe 'Editor::CLI' do
           .to eq "!abcd\r\n"
       end
 
-      it 'does do not modify the undo list' do
+      it 'does not modify the undo list' do
         editor = editor_for inputs: [?\C-a]
         expect(editor.undos.last).to eq nil
         expect(editor.process.undos.last).to eq nil
@@ -145,7 +145,7 @@ RSpec.describe 'Editor::CLI' do
           .to eq "abcd!\r\n"
       end
 
-      it 'does do not modify the undo list' do
+      it 'does not modify the undo list' do
         editor = editor_for inputs: [?\C-e]
         expect(editor.undos.last).to eq nil
         expect(editor.process.undos.last).to eq nil
@@ -199,7 +199,7 @@ RSpec.describe 'Editor::CLI' do
         test_up ["\e[A", "!"], "ab!cd\r\nefgh\r\n", y: 0
       end
 
-      it 'does do not modify the undo list' do
+      it 'does not modify the undo list' do
         editor = editor_for inputs: [?\C-p]
         expect(editor.undos.last).to eq nil
         expect(editor.process.undos.last).to eq nil
@@ -226,7 +226,7 @@ RSpec.describe 'Editor::CLI' do
         test_down ["\e[B", "!"], "abcd\r\nef!gh\r\n", y: 1
       end
 
-      it 'does do not modify the undo list' do
+      it 'does not modify the undo list' do
         editor = editor_for inputs: [?\C-n]
         expect(editor.undos.last).to eq nil
         expect(editor.process.undos.last).to eq nil
@@ -253,7 +253,7 @@ RSpec.describe 'Editor::CLI' do
         test_right ["\e[C", "!"], "abcd!\r\n", x: 4
       end
 
-      it 'does do not modify the undo list' do
+      it 'does not modify the undo list' do
         editor = editor_for inputs: [?\C-f]
         expect(editor.undos.last).to eq nil
         expect(editor.process.undos.last).to eq nil
@@ -280,7 +280,7 @@ RSpec.describe 'Editor::CLI' do
         test_left ["\e[D", "!"], "!abcd\r\n", x: 0
       end
 
-      it 'does do not modify the undo list' do
+      it 'does not modify the undo list' do
         editor = editor_for inputs: [?\C-b]
         expect(editor.undos.last).to eq nil
         expect(editor.process.undos.last).to eq nil
@@ -358,14 +358,14 @@ RSpec.describe 'Editor::CLI' do
           .to eq "Xabc\r\n"
       end
 
-      it 'does do not modify the undo list' do
+      it 'does not modify the undo list' do
         editor = editor_for inputs: ["\eb"]
         expect(editor.undos.last).to eq nil
         expect(editor.process.undos.last).to eq nil
       end
     end
 
-    describe 'M-f moves back a word' do
+    describe 'M-f moves forward a word' do
       it 'moves to the space after the current word when it is in the middle of a word' do
         expect(editor_for(lines:["abc defg"], x: 1, inputs:["\ef", "X"]).process.process.to_s)
           .to eq "abcX defg\r\n"
@@ -381,7 +381,7 @@ RSpec.describe 'Editor::CLI' do
           .to eq "abc defX\r\n"
       end
 
-      it 'does do not modify the undo list' do
+      it 'does not modify the undo list' do
         editor = editor_for inputs: ["\ef"]
         expect(editor.undos.last).to eq nil
         expect(editor.process.undos.last).to eq nil
